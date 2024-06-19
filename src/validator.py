@@ -6,7 +6,7 @@ from scipy.interpolate import splrep, splev
 from sklearn.preprocessing import MinMaxScaler
 
 # Internal imports
-from hdf5 import DSMCData
+import hdf5
 
 
 class Validator:
@@ -154,7 +154,7 @@ class Validator:
     def __diagnosis_collision_probability(self):
 
         # Read the DSMCState files
-        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
+        dsmc_data = hdf5.DSMCData(self.__dsmc_state_files[-1])
 
         for index, column in enumerate(dsmc_data.columns):
             if ('DSMC_MeanCollProb' in column) or ('DSMC_MaxCollProb' in column):
@@ -177,7 +177,7 @@ class Validator:
 
     def __diagnosis_num_of_particles(self, min_num_of_particles_in_element: int):
         # Read the DSMCState files
-        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
+        dsmc_data = hdf5.DSMCData(self.__dsmc_state_files[-1])
 
         for index, column in enumerate(dsmc_data.columns):
             if 'Total_SimPartNum' in column:
@@ -201,7 +201,7 @@ class Validator:
 
     def __is_mcx_over_mfp(self):
         # Read the DSMCState files
-        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
+        dsmc_data = hdf5.DSMCData(self.__dsmc_state_files[-1])
 
         for index, column in enumerate(dsmc_data.columns):
             if 'DSMC_MCS_over_MFP' in column:
