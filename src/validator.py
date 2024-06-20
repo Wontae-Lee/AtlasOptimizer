@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import splrep, splev
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
 # Internal imports
 from .hdf5 import DSMCData
@@ -15,19 +16,29 @@ class Validator:
                  path: str,
                  determination_rate: float = 0.1,
                  steady_threshold: float = 0.5,
-                 spline_degree: int = 6,
+                 smoothing: int = 5,
+                 spline_derivative: int = 1
                  ):
         """
-        :param path: The path of the simulation directory. (e.g. 'home/user/ATLAS/doc/meetings/000/simulations')
+        :param path: The path of the simulation directory.
+        (e.g. 'home/user/ATLAS/doc/meetings/000/simulations/cylinder2_0')
         :param determination_rate: The rate of time from the end time to determine the steady state.
         :param steady_threshold: The threshold to determine the steady state.
-        :param spline_degree: The degree of the spline interpolation.
+        :param smoothing: The degree of the spline interpolation.
+        :param spline_derivative: The derivative of the spline interpolation.
         """
 
         self.path = path
+
+        # Get the case name from the path
+        self.case_name = path.split('/')[-1]
+        if self.case_name == '':
+            self.case_name = path.split('/')[-2]
+
         self.determination_rate = determination_rate
         self.steady_threshold = steady_threshold
-        self.spline_degree = spline_degree
+        self.smoothing = smoothing
+        self.spline_derivative = spline_derivative
 
         # Read the PartAnalyze.csv file
         self.__part_analyze = pd.read_csv(f'{path}/PartAnalyze.csv').fillna(0)
@@ -71,10 +82,11 @@ class Validator:
                   num_of_particles: bool = True,
                   mcx_over_mfp: bool = True,
                   min_num_of_particles_in_element: int = 10,
+                  save: bool = False
                   ):
 
         if steady:
-            self.__diagnosis_steady_state(periodicity)
+            self.__diagnosis_steady_state(save, periodicity)
 
         # Check if the DSMCState files exist
         self.__exist_dsmc_state_files()
@@ -87,14 +99,19 @@ class Validator:
         if mcx_over_mfp:
             self.__is_mcx_over_mfp()
 
-    def __diagnosis_steady_state(self, periodicity: bool = False):
+    def __diagnosis_steady_state(self, save: bool, periodicity: bool):
+
+        if save:
+            os.makedirs(f'./history/{self.case_name}/png', exist_ok=True)
+            os.makedirs(f'./history/{self.case_name}/npy', exist_ok=True)
 
         # Find the steady state time
         steady_state_time_index = int(len(self.__time) * self.determination_rate)
         print(f"""
         
         Validator will check the time in order to determine the steady state.
-        if you want to increase the duration that will be checked, you can increase the \"determination_rate\" parameter.
+        if you want to increase the duration that will be checked, you can increase the \"determination_rate\" \
+        parameter.
         
         from 
             the start time {self.__time[-steady_state_time_index]} 
@@ -117,7 +134,24 @@ class Validator:
                 y_scaled = MinMaxScaler().fit_transform(y.reshape(-1, 1)).flatten()
 
                 # Spline interpolation
-                tck = splrep(x_scaled, y_scaled, s=self.spline_degree)
+                tck = splrep(x_scaled, y_scaled, s=self.smoothing)
+
+                if save:
+                    # Save the normalized y values
+                    np.save(f'./history/{self.case_name}/npy/{column}.npy', y_scaled)
+
+                    # Plot the spline interpolation
+                    plt.scatter(x_scaled, y_scaled, label=f'{column}')
+
+                    y_spline = list(splev(x_scaled, tck, der=self.spline_derivative))
+                    plt.plot(x_scaled, y_spline, label=f'{column} derivative')
+
+                    plt.legend()
+                    plt.xlabel(f'Normalized time')
+                    plt.ylabel(f'Normalized {column}')
+                    plt.title(f'{column} ')
+                    plt.savefig(f'./history/{self.case_name}/png/{column}.png')
+                    plt.close()
 
                 # Calculate the mean slope of the column values
                 # from the steady state time to the end of the simulation
@@ -126,9 +160,9 @@ class Validator:
                 for x_point in x[-steady_state_time_index:]:
 
                     if periodicity:
-                        total_slope += splev(x_point, tck, der=1)
+                        total_slope += splev(x_point, tck, der=self.spline_derivative)
                     else:
-                        total_slope += np.abs(splev(x_point, tck, der=1))
+                        total_slope += np.abs(splev(x_point, tck, der=self.spline_derivative))
 
                 mean_slope = total_slope / x.shape[0]
 
@@ -139,7 +173,8 @@ class Validator:
                     raise Exception(f"""
                     
                     The simulation in the directory {self.path} is not in the steady state.
-                    The mean slope of the \"{column}\" column is {mean_slope} which is greater than the threshold {self.steady_threshold}.
+                    The mean slope of the \"{column}\" column is {mean_slope} which is greater than the threshold \
+                    {self.steady_threshold}.
                     
                     Solution:
                     
@@ -195,7 +230,8 @@ class Validator:
                     Solution:
                     
                     1. you can increase the number of particles in the simulation.
-                       In order to increase the number of particles, you should decrease "MacroParticleFactor" in the parameter.ini.
+                       In order to increase the number of particles, you should decrease "MacroParticleFactor" \
+                       in the parameter.ini.
                     
                     """)
 
