@@ -105,3 +105,6 @@ class Tool:
                 else:
                     self.__fitted_value = self.__fitted_value + rate * (self.__desired_value - steady_value)
                     self.__change_value(self.option, self.__fitted_value)
+
+    def is_fitted(self):
+        return self.__fitted
