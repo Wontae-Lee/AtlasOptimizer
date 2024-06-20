@@ -31,9 +31,12 @@ class Validator:
         self.path = path
 
         # Get the case name from the path
-        self.case_name = path.split('/')[-1]
-        if self.case_name == '':
-            self.case_name = path.split('/')[-2]
+        while True:
+            if path[-1] == '/':
+                path = path[:-1]
+            else:
+                self.case_name = path.split('/')[-1]
+                break
 
         self.determination_rate = determination_rate
         self.steady_threshold = steady_threshold
