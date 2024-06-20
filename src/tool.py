@@ -16,22 +16,6 @@ class Tool:
         self.__check_option_none()
         self.__change_value(self.option, self.__desired_value)
 
-        # Read the PartAnalyze.csv file
-        self.__part_analyze = pd.read_csv(f'{path}/PartAnalyze.csv').fillna(0)
-        # Remove rows which contain 0 values
-        self.__part_analyze = self.__part_analyze[(self.__part_analyze != 0).all(axis=1)]
-        self.__part_analyze_columns = self.__part_analyze.columns
-        self.__part_analyze = self.__part_analyze.to_numpy()
-
-        # The columns that can only exist once in PartAnalyze.csv
-        self.__time = None
-        self.__resolved_timestep = None
-        self.__pmax = None
-        self.__mean_free_path = None
-        self.__max_mcs_over_mfp = None
-        self.__resolved_cell_percentage = None
-        self.__allocate_columns()
-
     def __find_parameter_ini(self):
         """Find the parameter.ini file in the path"""
         for file in os.listdir(self.path):
@@ -92,7 +76,26 @@ class Tool:
         with open(self.__parameter_ini, "w") as file:
             file.writelines(lines)
 
+    def __read_part_analyze(self):
+        # Read the PartAnalyze.csv file
+        self.__part_analyze = pd.read_csv(f'{self.path}/PartAnalyze.csv').fillna(0)
+        # Remove rows which contain 0 values
+        self.__part_analyze = self.__part_analyze[(self.__part_analyze != 0).all(axis=1)]
+        self.__part_analyze_columns = self.__part_analyze.columns
+        self.__part_analyze = self.__part_analyze.to_numpy()
+
+        # The columns that can only exist once in PartAnalyze.csv
+        self.__time = None
+        self.__resolved_timestep = None
+        self.__pmax = None
+        self.__mean_free_path = None
+        self.__max_mcs_over_mfp = None
+        self.__resolved_cell_percentage = None
+        self.__allocate_columns()
+
     def fitting(self, rate: float = 0.5, accuracy: float = 0.05):
+        self.__read_part_analyze()
+
         for index, column in enumerate(self.__part_analyze_columns):
             if self.target in column:
                 steady_value = self.__part_analyze[-1, index]
