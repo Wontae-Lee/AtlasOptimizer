@@ -4,17 +4,39 @@ import pandas as pd
 
 class Tool:
 
-    def __init__(self, path: str, option: str, target: str, value: float):
+    def __init__(self, path: str, adaptive_type: str, specie: int, surfaceflux: int, value: float):
         self.path = path
-        self.option = option
-        self.target = target
+        self.__define_option(adaptive_type, specie, surfaceflux)
+        self.__define_target(adaptive_type, specie, surfaceflux)
         self.__desired_value = value
         self.__fitted_value = value
         self.__parameter_ini = None
         self.__fitted = False
         self.__find_parameter_ini()
         self.__check_option_none()
-        self.__change_value(self.option, self.__desired_value)
+        self.__change_value(self.__option, self.__desired_value)
+
+    def __define_option(self, adaptive_type: str, specie: int, surfaceflux: int):
+
+        if adaptive_type not in ["pressure", "massflow"]:
+            raise ValueError(f"""
+            
+            The adaptive type {adaptive_type} is not valid.
+            The adaptive type must be either 'pressure' or 'massflow'.
+            
+            """)
+
+        self.__option = f"Part-Species{specie}-Surfaceflux{surfaceflux}-Adaptive-{adaptive_type}"
+
+    def __define_target(self, adaptive_type: str, specie: int, surfaceflux: int):
+        if adaptive_type not in ["pressure", "massflow"]:
+            raise ValueError(f"""
+                    
+                    The adaptive type {adaptive_type} is not valid.
+                    The adaptive type must be either 'pressure' or 'massflow'.
+                    
+                    """)
+        self.__target = f"{adaptive_type}-Spec-00{specie}-SF-00{surfaceflux}"
 
     def __find_parameter_ini(self):
         """Find the parameter.ini file in the path"""
@@ -54,10 +76,10 @@ class Tool:
 
         # Update the parameter.ini file
         for line in lines:
-            if (f"{self.option}" in line) and (f"{self.option}=None" not in line):
+            if (f"{self.__option}" in line) and (f"{self.__option}=None" not in line):
                 raise ValueError(f"""
                 
-                The option {self.option} is already defined in the parameter.ini file.
+                The option {self.__option} is already defined in the parameter.ini file.
                 
                 """)
 
@@ -97,7 +119,7 @@ class Tool:
         self.__read_part_analyze()
 
         for index, column in enumerate(self.__part_analyze_columns):
-            if self.target in column:
+            if self.__target in column:
                 steady_value = self.__part_analyze[-1, index]
 
                 error = abs(steady_value - self.__desired_value) / self.__desired_value
@@ -107,7 +129,7 @@ class Tool:
                     return
                 else:
                     self.__fitted_value = self.__fitted_value + rate * (self.__desired_value - steady_value)
-                    self.__change_value(self.option, self.__fitted_value)
+                    self.__change_value(self.__option, self.__fitted_value)
 
     def is_fitted(self):
         return self.__fitted
