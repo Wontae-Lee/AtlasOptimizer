@@ -26,6 +26,11 @@ class Tool:
             
             """)
 
+        if adaptive_type == "pressure":
+            adaptive_type = "Pressure"
+        else:
+            adaptive_type = "Massflow"
+
         self.__option = f"Part-Species{specie}-Surfaceflux{surfaceflux}-Adaptive-{adaptive_type}"
 
     def __define_target(self, adaptive_type: str, specie: int, surfaceflux: int):
@@ -36,6 +41,10 @@ class Tool:
                     The adaptive type must be either 'pressure' or 'massflow'.
                     
                     """)
+        if adaptive_type == "pressure":
+            adaptive_type = "Pressure"
+        else:
+            adaptive_type = "Massflow"
         self.__target = f"{adaptive_type}-Spec-00{specie}-SF-00{surfaceflux}"
 
     def __find_parameter_ini(self):
