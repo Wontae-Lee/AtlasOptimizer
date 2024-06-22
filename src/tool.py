@@ -12,7 +12,7 @@ class Tool:
                  surfaceflux: int,
                  pressure: float,
                  cell_size: float,
-                 particles_in_element: int = 20,
+                 particles_in_element: float = 1.0,
                  boltzmann_constant: float = 1.380649e-23,
                  temperature: float = 300
                  ):
