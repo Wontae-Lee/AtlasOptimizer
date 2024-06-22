@@ -24,8 +24,6 @@ class Tool:
         self.__specie = specie
         self.__surfaceflux = surfaceflux
 
-        self.__set_option()
-
         self.__target = None
         self.__compute_macro_particles(specie,
                                        pressure,
