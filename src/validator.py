@@ -88,8 +88,7 @@ class Validator:
                   save: bool = False
                   ):
 
-        if steady:
-            self.__diagnosis_steady_state(save, periodicity)
+        self.__diagnosis_steady_state(steady, save, periodicity)
 
         # Check if the DSMCState files exist
         self.__exist_dsmc_state_files()
@@ -102,7 +101,7 @@ class Validator:
         if mcx_over_mfp:
             self.__is_mcx_over_mfp()
 
-    def __diagnosis_steady_state(self, save: bool, periodicity: bool):
+    def __diagnosis_steady_state(self, steady: bool, save: bool, periodicity: bool):
 
         if save:
             os.makedirs(f'./history/{self.case_name}/png', exist_ok=True)
@@ -113,8 +112,9 @@ class Validator:
         print(f"""
         
         Validator will check the time in order to determine the steady state.
-        if you want to increase the duration that will be checked, you can increase the \"determination_rate\" \
-        parameter.
+        if you want to increase the duration that will be checked, 
+        
+        you can increase the \"determination_rate\" parameter.
         
         from 
             the start time {self.__time[-steady_state_time_index]} 
@@ -172,12 +172,12 @@ class Validator:
                 # If the slope is less than the threshold, the system is in the steady state
                 if mean_slope < self.steady_threshold:
                     continue
-                else:
+                elif (mean_slope > self.steady_threshold) and steady:
                     raise Exception(f"""
                     
                     The simulation in the directory {self.path} is not in the steady state.
-                    The mean slope of the \"{column}\" column is {mean_slope} which is greater than the threshold \
-                    {self.steady_threshold}.
+                    The mean slope of the \"{column}\" column is {mean_slope} which is greater than 
+                    the threshold {self.steady_threshold}.
                     
                     Solution:
                     
@@ -233,7 +233,7 @@ class Validator:
                     Solution:
                     
                     1. you can increase the number of particles in the simulation.
-                       In order to increase the number of particles, you should decrease "MacroParticleFactor" \
+                       In order to increase the number of particles, you should decrease "MacroParticleFactor" 
                        in the parameter.ini.
                     
                     """)
