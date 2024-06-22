@@ -22,6 +22,7 @@ class Tool:
         self.__set_adaptive_type(adaptive_type)
         self.__specie = specie
         self.__surfaceflux = surfaceflux
+        self.__pressure = pressure
         self.__set_option()
 
         self.__target = None
@@ -33,7 +34,6 @@ class Tool:
                                        temperature)
 
         self.__desired_value = None
-        self.__pressure = pressure
         self.__fitted = False
 
     def __set_adaptive_type(self, adaptive_type: str):
@@ -67,7 +67,7 @@ class Tool:
     def __set_option(self):
         self.__option = f"Part-Species{self.__specie}-Surfaceflux{self.__surfaceflux}-Adaptive-{self.__adaptive_type}"
         self.__check_none(self.__option)
-        self.__change_value(self.__option, self.__desired_value)
+        self.__change_value(self.__option, self.__pressure)
 
     def set_target(self, output_type: str, value: float = None, characteristic_length: float = None):
 
