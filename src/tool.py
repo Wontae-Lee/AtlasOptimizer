@@ -62,6 +62,8 @@ class Tool:
         macro_particle_factor = (pressure / (boltzmann_constant * temperature)) \
                                 * cell_size ** 3 / particle_in_element
 
+        macro_particle_factor = int(macro_particle_factor)
+
         self.__change_value(self.__macro_particles, macro_particle_factor)
 
     def __set_option(self):
