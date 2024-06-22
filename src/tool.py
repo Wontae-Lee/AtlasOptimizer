@@ -163,6 +163,7 @@ class Tool:
                     return
                 else:
                     self.__pressure += rate * error_rate
+                    self.__pressure = np.abs(self.__pressure)
                     self.__change_value(self.__option, self.__pressure)
                     self.__compute_macro_particles(self.__pressure)
 
