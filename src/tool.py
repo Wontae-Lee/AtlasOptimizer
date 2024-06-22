@@ -23,15 +23,18 @@ class Tool:
         self.__specie = specie
         self.__surfaceflux = surfaceflux
         self.__pressure = pressure
+        self.__cell_size = cell_size
+        self.__particles_in_element = particles_in_element
+        self.__boltzmann_constant = boltzmann_constant
+        self.__temperature = temperature
+
+        self.__macro_particles = f"Part-Species{specie}-MacroParticleFactor"
+        self.__check_none(self.__macro_particles)
+
         self.__set_option()
 
         self.__target = None
-        self.__compute_macro_particles(specie,
-                                       pressure,
-                                       cell_size,
-                                       particles_in_element,
-                                       boltzmann_constant,
-                                       temperature)
+        self.__compute_macro_particles(pressure)
 
         self.__desired_value = None
         self.__fitted = False
@@ -47,24 +50,13 @@ class Tool:
         if adaptive_type == "pressure":
             self.__adaptive_type = "Pressure"
 
-    def __compute_macro_particles(self,
-                                  specie: int,
-                                  pressure: float,
-                                  cell_size: float,
-                                  particle_in_element: int,
-                                  boltzmann_constant: float,
-                                  temperature: float):
-
-        self.__macro_particles = f"Part-Species{specie}-MacroParticleFactor"
-        self.__check_none(self.__macro_particles)
+    def __compute_macro_particles(self, pressure: float):
 
         # Compute the macro particle factor
-        macro_particle_factor = (pressure / (boltzmann_constant * temperature)) \
-                                * cell_size ** 3 / particle_in_element
+        macro_particle_factor = (pressure / (self.__boltzmann_constant * self.__temperature)) \
+                                * self.__cell_size ** 3 / self.__particles_in_element
 
-        macro_particle_factor = int(macro_particle_factor)
-
-        self.__change_value(self.__macro_particles, macro_particle_factor)
+        self.__change_value(self.__macro_particles, int(macro_particle_factor))
 
     def __set_option(self):
         self.__option = f"Part-Species{self.__specie}-Surfaceflux{self.__surfaceflux}-Adaptive-{self.__adaptive_type}"
@@ -172,6 +164,7 @@ class Tool:
                 else:
                     self.__pressure += rate * error_rate
                     self.__change_value(self.__option, self.__pressure)
+                    self.__compute_macro_particles(self.__pressure)
 
     def is_fitted(self):
         return self.__fitted
