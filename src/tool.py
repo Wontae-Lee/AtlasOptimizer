@@ -156,13 +156,13 @@ class Tool:
             if self.__target in column:
                 steady_value = self.__part_analyze[-1, index]
 
-                error = (steady_value - self.__desired_value)
+                error_rate = (steady_value - self.__desired_value) / self.__desired_value
 
-                if np.abs(error / self.__desired_value) < accuracy:
+                if np.abs(error_rate) < accuracy:
                     self.__fitted = True
                     return
                 else:
-                    self.__pressure += rate * error
+                    self.__pressure = self.__pressure + self.__pressure * rate * error_rate
                     self.__pressure = np.abs(self.__pressure)
                     self.__change_value(self.__option, self.__pressure)
                     self.__compute_macro_particles(self.__pressure)
