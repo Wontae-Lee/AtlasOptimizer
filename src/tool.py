@@ -28,14 +28,16 @@ class Tool:
         self.__boltzmann_constant = boltzmann_constant
         self.__temperature = temperature
 
+        # set the macro particles
         self.__macro_particles = f"Part-Species{specie}-MacroParticleFactor"
-        self.__check_none(self.__macro_particles)
+        self.__compute_macro_particles(pressure)
 
+        # set init particle density
+        self.__init_particle_density = f"Part-Species{specie}-Init1-PartDensity"
+        self.__compute_init_particle_density(pressure)
         self.__set_option()
 
         self.__target = None
-        self.__compute_macro_particles(pressure)
-
         self.__desired_value = None
         self.__fitted = False
 
@@ -51,12 +53,19 @@ class Tool:
             self.__adaptive_type = "Pressure"
 
     def __compute_macro_particles(self, pressure: float):
-
+        self.__check_none(self.__macro_particles)
         # Compute the macro particle factor
         macro_particle_factor = (pressure / (self.__boltzmann_constant * self.__temperature)) \
                                 * self.__cell_size ** 3 / self.__particles_in_element
 
         self.__change_value(self.__macro_particles, int(macro_particle_factor))
+
+    def __compute_init_particle_density(self, pressure: float):
+        self.__check_none(self.__init_particle_density)
+        # Compute the initial particle density
+        init_particle_density = pressure / (self.__boltzmann_constant * self.__temperature)
+
+        self.__change_value(self.__init_particle_density, init_particle_density)
 
     def __set_option(self):
         self.__option = f"Part-Species{self.__specie}-Surfaceflux{self.__surfaceflux}-Adaptive-{self.__adaptive_type}"
