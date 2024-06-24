@@ -75,8 +75,7 @@ class Tool:
         self.__check_none(self.__option)
         self.__change_value(self.__option, self.__pressure)
 
-    def set_target(self, output_type: str, value: float = None, characteristic_length: float = None,
-                   analytical_time: float = None):
+    def set_target(self, output_type: str, value: float = None, characteristic_length: float = None):
 
         if output_type == "flux":
             self.__target = f"{self.__adaptive_type}-Spec-00{self.__specie}-SF-00{self.__surfaceflux}"
@@ -84,7 +83,7 @@ class Tool:
 
         elif output_type == "Kn":
             self.__target = "MeanFreePath"
-            self.__desired_value = value * characteristic_length * analytical_time
+            self.__desired_value = value * characteristic_length
 
     def __find_parameter_ini(self):
         """Find the parameter.ini file in the path"""
