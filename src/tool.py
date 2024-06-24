@@ -72,7 +72,7 @@ class Tool:
 
         elif output_type == "Kn":
             self.__target = "MeanFreePath"
-            self.__desired_value = value * characteristic_length / analytical_time
+            self.__desired_value = value * characteristic_length * analytical_time
 
     def __find_parameter_ini(self):
         """Find the parameter.ini file in the path"""
