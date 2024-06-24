@@ -176,6 +176,7 @@ class Tool:
                     self.__pressure = np.abs(self.__pressure)
                     self.__change_value(self.__option, self.__pressure)
                     self.__compute_macro_particles(self.__pressure)
+                    self.__compute_init_particle_density(self.__pressure)
 
     def is_fitted(self):
         return self.__fitted
