@@ -14,7 +14,8 @@ class Tool:
                  cell_size: float,
                  particles_in_element: float = 1.0,
                  boltzmann_constant: float = 1.380649e-23,
-                 temperature: float = 300
+                 temperature: float = 300,
+                 init_flux: bool = False
                  ):
 
         self.path = path
@@ -34,9 +35,11 @@ class Tool:
         self.__compute_macro_particles(pressure)
 
         # set init particle density
-        self.__init_particle_density = f"Part-Species{specie}-Init1-PartDensity"
-        self.__check_none(self.__init_particle_density)
-        self.__compute_init_particle_density(pressure)
+        self.__init_flux = init_flux
+        if self.__init_flux:
+            self.__init_particle_density = f"Part-Species{specie}-Init1-PartDensity"
+            self.__check_none(self.__init_particle_density)
+            self.__compute_init_particle_density(pressure)
         self.__set_option()
 
         self.__target = None
@@ -176,7 +179,8 @@ class Tool:
                     self.__pressure = np.abs(self.__pressure)
                     self.__change_value(self.__option, self.__pressure)
                     self.__compute_macro_particles(self.__pressure)
-                    self.__compute_init_particle_density(self.__pressure)
+                    if self.__init_flux:
+                        self.__compute_init_particle_density(self.__pressure)
 
     def is_fitted(self):
         return self.__fitted
