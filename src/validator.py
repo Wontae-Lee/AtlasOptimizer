@@ -203,7 +203,7 @@ class Validator:
                     raise Exception(f"""
                     
                     The simulation in the directory {self.path} has not a proper collision probability.
-                    The collision probability is {collision_probability}.
+                    The maximum collision probability is {collision_probability}.
                     
                     It must be less than 1
             
@@ -213,7 +213,7 @@ class Validator:
                     
                     """)
             elif 'DSMC_MeanCollProb' in column:
-                collision_probability = np.max(dsmc_data.data[:, index])
+                collision_probability = np.min(dsmc_data.data[:, index])
                 if 0.1 < collision_probability < 1:
                     continue
                 else:
@@ -250,10 +250,10 @@ class Validator:
                         The simulation in the directory {self.path} has a low number of particles.
                         The number of particles is {num_of_particles}.
                         
-                        It must be more than {min_middle_num_of_particles_in_element}.
-                    
-                        
-                        Solution:
+                        It must be more than {middle_num_of_particles}.
+
+
+                    Solution:
                         
                         1. you can increase the number of particles in the simulation.
                            In order to increase the number of particles, you should decrease "MacroParticleFactor" 
