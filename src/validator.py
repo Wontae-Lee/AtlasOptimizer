@@ -206,9 +206,7 @@ class Validator:
                     The collision probability is {collision_probability}.
                     
                     It must be less than 1
-                    it the collision probability is less than 0.2, you can see noise in the output.
-                    
-                    
+            
                     Solution:
                     
                     1. you can decrease the time duration of one time step.
@@ -275,11 +273,12 @@ class Validator:
                 else:
                     raise Exception(f"""
                         
-                        The simulation in the directory {self.path} has a high mean collision number over mean free path.
+                        The simulation in the directory {self.path} has not a proper 
+                        mean collision number over mean free path.
+                        
                         The mean collision number over mean free path is {mcx_over_mfp}.
                         
                         It must be less than 1.
-                        for the efficiency of the simulation, it should be more than 0.2.
                         
                         Solution:
                         
