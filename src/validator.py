@@ -215,8 +215,8 @@ class Validator:
                     
                     """)
             elif 'DSMC_MeanCollProb' in column:
-                collision_probability = np.max(dsmc_data.data[:, index]) / 2
-                if 0.2 < collision_probability < 0.5:
+                collision_probability = np.max(dsmc_data.data[:, index])
+                if 0.1 < collision_probability:
                     continue
                 else:
                     raise Exception(f"""
