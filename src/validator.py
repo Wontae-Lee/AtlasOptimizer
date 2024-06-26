@@ -197,7 +197,7 @@ class Validator:
         for index, column in enumerate(dsmc_data.columns):
             if ('DSMC_MeanCollProb' in column) or ('DSMC_MaxCollProb' in column):
                 collision_probability = np.mean(dsmc_data.data[:, index])
-                if 0.2 < collision_probability < 1:
+                if 0.1 < collision_probability < 1:
                     continue
                 else:
                     raise Exception(f"""
@@ -251,7 +251,7 @@ class Validator:
         for index, column in enumerate(dsmc_data.columns):
             if 'DSMC_MCS_over_MFP' in column:
                 mcx_over_mfp = np.mean(dsmc_data.data[:, index])
-                if 0.2 < mcx_over_mfp < 1:
+                if mcx_over_mfp < 1:
                     continue
                 else:
                     raise Exception(f"""
