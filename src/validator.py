@@ -202,7 +202,7 @@ class Validator:
                 else:
                     raise Exception(f"""
                     
-                    The simulation in the directory {self.path} has a high collision probability.
+                    The simulation in the directory {self.path} has not a proper collision probability.
                     The collision probability is {collision_probability}.
                     
                     It must be less than 1 and greater than 0.2.
