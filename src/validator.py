@@ -234,70 +234,67 @@ class Validator:
                     
                     """)
 
+    def __diagnosis_num_of_particles(self, min_middle_num_of_particles_in_element: int):
+        # Read the DSMCState files
+        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
 
-def __diagnosis_num_of_particles(self, min_middle_num_of_particles_in_element: int):
-    # Read the DSMCState files
-    dsmc_data = DSMCData(self.__dsmc_state_files[-1])
+        for index, column in enumerate(dsmc_data.columns):
+            if 'Total_SimPartNum' in column:
+                num_of_particles = dsmc_data.data[:, index]
 
-    for index, column in enumerate(dsmc_data.columns):
-        if 'Total_SimPartNum' in column:
-            num_of_particles = dsmc_data.data[:, index]
+                middle_num_of_particles = np.max(num_of_particles) / 2
 
-            middle_num_of_particles = np.max(num_of_particles) / 2
-
-            if middle_num_of_particles > min_middle_num_of_particles_in_element:
-                continue
-            else:
-                raise Exception(f"""
+                if middle_num_of_particles > min_middle_num_of_particles_in_element:
+                    continue
+                else:
+                    raise Exception(f"""
+                        
+                        The simulation in the directory {self.path} has a low number of particles.
+                        The number of particles is {num_of_particles}.
+                        
+                        It must be more than {min_middle_num_of_particles_in_element}.
                     
-                    The simulation in the directory {self.path} has a low number of particles.
-                    The number of particles is {num_of_particles}.
-                    
-                    It must be more than {min_middle_num_of_particles_in_element}.
+                        
+                        Solution:
+                        
+                        1. you can increase the number of particles in the simulation.
+                           In order to increase the number of particles, you should decrease "MacroParticleFactor" 
+                           in the parameter.ini.
+                        
+                        """)
+
+    def __is_mcx_over_mfp(self):
+        # Read the DSMCState files
+        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
+
+        for index, column in enumerate(dsmc_data.columns):
+            if 'DSMC_MCS_over_MFP' in column:
+                mcx_over_mfp = np.mean(dsmc_data.data[:, index])
+                if mcx_over_mfp < 1:
+                    continue
+                else:
+                    raise Exception(f"""
+                        
+                        The simulation in the directory {self.path} has a high mean collision number over mean free path.
+                        The mean collision number over mean free path is {mcx_over_mfp}.
+                        
+                        It must be less than 1.
+                        for the efficiency of the simulation, it should be more than 0.2.
+                        
+                        Solution:
+                        
+                        1. you can decrease the time duration of one time step.
+                        
+                        """)
+
+    def __exist_dsmc_state_files(self):
+        if len(self.__dsmc_state_files) == 0:
+            raise Exception(f"""
                 
-                    
-                    Solution:
-                    
-                    1. you can increase the number of particles in the simulation.
-                       In order to increase the number of particles, you should decrease "MacroParticleFactor" 
-                       in the parameter.ini.
-                    
-                    """)
-
-
-def __is_mcx_over_mfp(self):
-    # Read the DSMCState files
-    dsmc_data = DSMCData(self.__dsmc_state_files[-1])
-
-    for index, column in enumerate(dsmc_data.columns):
-        if 'DSMC_MCS_over_MFP' in column:
-            mcx_over_mfp = np.mean(dsmc_data.data[:, index])
-            if mcx_over_mfp < 1:
-                continue
-            else:
-                raise Exception(f"""
-                    
-                    The simulation in the directory {self.path} has a high mean collision number over mean free path.
-                    The mean collision number over mean free path is {mcx_over_mfp}.
-                    
-                    It must be less than 1.
-                    for the efficiency of the simulation, it should be more than 0.2.
-                    
-                    Solution:
-                    
-                    1. you can decrease the time duration of one time step.
-                    
-                    """)
-
-
-def __exist_dsmc_state_files(self):
-    if len(self.__dsmc_state_files) == 0:
-        raise Exception(f"""
-            
-            There is no DSMCState file in the directory {self.path}.
-            
-            You have to change the "Part-AnalyzeStep" option in the parameter.ini in order to create DSMCState files.
-            """)
+                There is no DSMCState file in the directory {self.path}.
+                
+                You have to change the "Part-AnalyzeStep" option in the parameter.ini in order to create DSMCState files.
+                """)
 
 
 if __name__ == '__main__':
