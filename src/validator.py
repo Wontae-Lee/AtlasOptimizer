@@ -195,9 +195,9 @@ class Validator:
         dsmc_data = DSMCData(self.__dsmc_state_files[-1])
 
         for index, column in enumerate(dsmc_data.columns):
-            if ('DSMC_MeanCollProb' in column) or ('DSMC_MaxCollProb' in column):
+            if 'DSMC_MaxCollProb' in column:
                 collision_probability = np.mean(dsmc_data.data[:, index])
-                if 0.1 < collision_probability < 1:
+                if collision_probability < 1:
                     continue
                 else:
                     raise Exception(f"""
@@ -205,7 +205,26 @@ class Validator:
                     The simulation in the directory {self.path} has not a proper collision probability.
                     The collision probability is {collision_probability}.
                     
-                    It must be less than 1 and greater than 0.2.
+                    It must be less than 1
+                    it the collision probability is less than 0.2, you can see noise in the output.
+                    
+                    
+                    Solution:
+                    
+                    1. you can decrease the time duration of one time step.
+                    
+                    """)
+            elif 'DSMC_MeanCollProb' in column:
+                collision_probability = np.max(dsmc_data.data[:, index]) / 2
+                if 0.2 < collision_probability < 0.5:
+                    continue
+                else:
+                    raise Exception(f"""
+                    
+                    The simulation in the directory {self.path} has not a proper collision probability.
+                    The collision probability is {collision_probability}.
+                    
+                    It must be less than 1
                     it the collision probability is less than 0.2, you can see noise in the output.
                     
                     
@@ -215,20 +234,21 @@ class Validator:
                     
                     """)
 
-    def __diagnosis_num_of_particles(self, min_middle_num_of_particles_in_element: int):
-        # Read the DSMCState files
-        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
 
-        for index, column in enumerate(dsmc_data.columns):
-            if 'Total_SimPartNum' in column:
-                num_of_particles = dsmc_data.data[:, index]
+def __diagnosis_num_of_particles(self, min_middle_num_of_particles_in_element: int):
+    # Read the DSMCState files
+    dsmc_data = DSMCData(self.__dsmc_state_files[-1])
 
-                middle_num_of_particles = np.max(num_of_particles) / 2
+    for index, column in enumerate(dsmc_data.columns):
+        if 'Total_SimPartNum' in column:
+            num_of_particles = dsmc_data.data[:, index]
 
-                if middle_num_of_particles > min_middle_num_of_particles_in_element:
-                    continue
-                else:
-                    raise Exception(f"""
+            middle_num_of_particles = np.max(num_of_particles) / 2
+
+            if middle_num_of_particles > min_middle_num_of_particles_in_element:
+                continue
+            else:
+                raise Exception(f"""
                     
                     The simulation in the directory {self.path} has a low number of particles.
                     The number of particles is {num_of_particles}.
@@ -244,17 +264,18 @@ class Validator:
                     
                     """)
 
-    def __is_mcx_over_mfp(self):
-        # Read the DSMCState files
-        dsmc_data = DSMCData(self.__dsmc_state_files[-1])
 
-        for index, column in enumerate(dsmc_data.columns):
-            if 'DSMC_MCS_over_MFP' in column:
-                mcx_over_mfp = np.mean(dsmc_data.data[:, index])
-                if mcx_over_mfp < 1:
-                    continue
-                else:
-                    raise Exception(f"""
+def __is_mcx_over_mfp(self):
+    # Read the DSMCState files
+    dsmc_data = DSMCData(self.__dsmc_state_files[-1])
+
+    for index, column in enumerate(dsmc_data.columns):
+        if 'DSMC_MCS_over_MFP' in column:
+            mcx_over_mfp = np.mean(dsmc_data.data[:, index])
+            if mcx_over_mfp < 1:
+                continue
+            else:
+                raise Exception(f"""
                     
                     The simulation in the directory {self.path} has a high mean collision number over mean free path.
                     The mean collision number over mean free path is {mcx_over_mfp}.
@@ -268,9 +289,10 @@ class Validator:
                     
                     """)
 
-    def __exist_dsmc_state_files(self):
-        if len(self.__dsmc_state_files) == 0:
-            raise Exception(f"""
+
+def __exist_dsmc_state_files(self):
+    if len(self.__dsmc_state_files) == 0:
+        raise Exception(f"""
             
             There is no DSMCState file in the directory {self.path}.
             
