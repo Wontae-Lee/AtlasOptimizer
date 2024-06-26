@@ -196,7 +196,7 @@ class Validator:
 
         for index, column in enumerate(dsmc_data.columns):
             if 'DSMC_MaxCollProb' in column:
-                collision_probability = np.mean(dsmc_data.data[:, index])
+                collision_probability = np.max(dsmc_data.data[:, index])
                 if collision_probability < 1:
                     continue
                 else:
