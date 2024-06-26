@@ -62,6 +62,7 @@ class Validator:
         # The DSMCState files
         self.__dsmc_state_files = [f'{path}/{file}' for file in os.listdir(path) if
                                    'DSMCState' in file and file.endswith('.h5')]
+        self.__dsmc_state_files.sort()
 
     def __allocate_columns(self):
         for index, column in enumerate(self.__part_analyze_columns):
