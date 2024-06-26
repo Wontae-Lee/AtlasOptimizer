@@ -214,7 +214,9 @@ class Validator:
                     
                     """)
             elif 'DSMC_MeanCollProb' in column:
-                collision_probability = np.max(dsmc_data.data[:, index])
+                collision_probability = np.max(dsmc_data.data[:, index]) + np.min(dsmc_data.data[:, index])
+                collision_probability /= 2
+
                 if 0.1 < collision_probability < 1:
                     continue
                 else:
@@ -241,7 +243,7 @@ class Validator:
             if 'Total_SimPartNum' in column:
                 num_of_particles = dsmc_data.data[:, index]
 
-                middle_num_of_particles = np.max(num_of_particles) / 2
+                middle_num_of_particles = (np.max(num_of_particles) + np.min(num_of_particles)) / 2
 
                 if middle_num_of_particles > min_middle_num_of_particles_in_element:
                     continue
